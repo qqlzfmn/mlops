@@ -176,7 +176,7 @@ c = get_config()  #noqa
 #    - pam: jupyterhub.auth.PAMAuthenticator
 #    - shared-password: jupyterhub.authenticators.shared.SharedPasswordAuthenticator
 #  Default: 'jupyterhub.auth.PAMAuthenticator'
-# c.JupyterHub.authenticator_class = 'jupyterhub.auth.PAMAuthenticator'
+c.JupyterHub.authenticator_class = 'oauthenticator.generic.GenericOAuthenticator'
 
 ## The base URL of the entire application.
 #  
@@ -238,7 +238,7 @@ c = get_config()  #noqa
 
 ## The config file to load
 #  Default: 'jupyterhub_config.py'
-# c.JupyterHub.config_file = 'jupyterhub_config.py'
+c.JupyterHub.config_file = 'jupyterhub_config.py'
 
 ## DEPRECATED: does nothing
 #  Default: False
@@ -805,7 +805,7 @@ c = get_config()  #noqa
 #    - localprocess: jupyterhub.spawner.LocalProcessSpawner
 #    - simple: jupyterhub.spawner.SimpleLocalProcessSpawner
 #  Default: 'jupyterhub.spawner.LocalProcessSpawner'
-# c.JupyterHub.spawner_class = 'jupyterhub.spawner.LocalProcessSpawner'
+c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 
 ## Path to SSL certificate file for the public facing interface of the proxy
 #  

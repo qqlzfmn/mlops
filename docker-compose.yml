@@ -1,14 +1,54 @@
 services:
   jupyterhub:
-    image: quay.io/jupyterhub/jupyterhub
-    command: jupyterhub -f /etc/jupyterhub/jupyterhub_config.py
+    image: jupyterhub:dockerspawner_oauthenticator
+    build:
+      context: jupyterhub
+      dockerfile: Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
     volumes:
-      - ./volumes/jupyterhub:/etc/jupyterhub
+      - ./volumes/jupyterhub/jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py:ro
     ports:
       - 8000:8000
     networks:
       - mlops
     restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    command: start-dev
+    environment:
+      - TZ=Asia/Shanghai
+      - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_BOOTSTRAP_ADMIN_USERNAME}
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD}
+    ports:
+      - 8080:8080
+    networks:
+      - mlops
+    restart: unless-stopped
+
+  database:
+    image: postgres
+    shm_size: 128mb
+    environment:
+      - TZ=Asia/Shanghai
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - mlops
+    restart: always
+
+  ## 如果需要使用watchtower自动更新镜像，请取消注释以下内容
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   environment:
+  #     - TZ=Asia/Shanghai
+  #     - WATCHTOWER_LABEL_ENABLE=true
+  #   labels:
+  #     - com.centurylinklabs.watchtower.enable=true
+  #   restart: unless-stopped
 
 networks:
   mlops:
