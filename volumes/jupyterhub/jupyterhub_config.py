@@ -1,3 +1,5 @@
+import os
+
 # Configuration file for jupyterhub.
 
 c = get_config()  #noqa
@@ -177,6 +179,23 @@ c = get_config()  #noqa
 #    - shared-password: jupyterhub.authenticators.shared.SharedPasswordAuthenticator
 #  Default: 'jupyterhub.auth.PAMAuthenticator'
 c.JupyterHub.authenticator_class = 'oauthenticator.generic.GenericOAuthenticator'
+
+c.GenericOAuthenticator.authorize_url = os.environ['JUPYTERHUB_OAUTH_AUTHORIZE_URL']
+c.GenericOAuthenticator.oauth_callback_url = os.environ['JUPYTERHUB_OAUTH_CALLBACK_URL']
+c.GenericOAuthenticator.token_url = os.environ['JUPYTERHUB_OAUTH_TOKEN_URL']
+c.GenericOAuthenticator.userdata_url = os.environ['JUPYTERHUB_OAUTH_USERDATA_URL']
+c.GenericOAuthenticator.client_id = os.environ['JUPYTERHUB_OAUTH_CLIENT_ID']
+c.GenericOAuthenticator.client_secret = os.environ['JUPYTERHUB_OAUTH_CLIENT_SECRET']
+c.GenericOAuthenticator.scope = ['openid', 'profile', 'email']
+c.GenericOAuthenticator.username_claim = 'preferred_username'
+c.GenericOAuthenticator.allow_all = False
+c.GenericOAuthenticator.allow_existing_users = False
+c.GenericOAuthenticator.manage_groups = True
+c.GenericOAuthenticator.admin_groups = ['admin']
+c.GenericOAuthenticator.allowed_groups = ['ailab', 'admin']
+c.GenericOAuthenticator.admin_users = ['lzf']
+c.GenericOAuthenticator.allowed_users = ['lzf']
+
 
 ## The base URL of the entire application.
 #  
@@ -806,6 +825,44 @@ c.JupyterHub.config_file = 'jupyterhub_config.py'
 #    - simple: jupyterhub.spawner.SimpleLocalProcessSpawner
 #  Default: 'jupyterhub.spawner.LocalProcessSpawner'
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
+
+network_name = os.environ['JUPYTERHUB_DOCKER_NETWORK_NAME']
+notebook_dir = os.environ['JUPYTERHUB_DOCKER_NOTEBOOK_DIR']
+datalake_dir = os.environ['JUPYTERHUB_DOCKER_DATALAKE_DIR']
+
+c.DockerSpawner.allowed_images = [
+    'quay.io/jupyter/datascience-notebook:latest',
+    'quay.io/jupyter/all-spark-notebook:latest',
+    'quay.io/jupyter/scipy-notebook:latest',
+    'quay.io/jupyterhub/singleuser:latest',
+]
+
+c.DockerSpawner.cpu_guarantee = 2
+c.DockerSpawner.cpu_limit = 10
+c.DockerSpawner.mem_guarantee = '4G'
+c.DockerSpawner.mem_limit = '20G'
+c.DockerSpawner.prefix = 'mlops'
+c.DockerSpawner.name_template = '{prefix}-{username}-{imagename}'
+c.DockerSpawner.network_name = network_name
+c.DockerSpawner.notebook_dir = notebook_dir
+# c.DockerSpawner.use_internal_ip = True
+c.JupyterHub.hub_connect_ip = 'jupyterhub'
+c.DockerSpawner.host_ip = '0.0.0.0'
+c.DockerSpawner.port = 8888
+c.DockerSpawner.cmd = 'jupyterhub-singleuser'
+# c.DockerSpawner.extra_create_kwargs = {'user': '{username}'}
+# c.DockerSpawner.extra_host_config = {'network_mode': network_name}
+c.SystemUserSpawner.host_homedir_format_string = '/home/{username}'
+# Mount the real user's Docker volume on the host to the notebook user's
+# notebook directory in the container
+# c.DockerSpawner.volumes = {
+#     'jupyterhub-user-{username}': notebook_dir
+# }
+# Mount a directory on the host to the notebook user's notebook directory in the container
+c.DockerSpawner.mounts = [
+  {'source': f'{notebook_dir}/{{username}}', 'target': notebook_dir, 'type': 'bind'},
+  {'source': datalake_dir, 'target': datalake_dir, 'type': 'bind'},
+]
 
 ## Path to SSL certificate file for the public facing interface of the proxy
 #  
