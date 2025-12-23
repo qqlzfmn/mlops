@@ -1,3 +1,4 @@
 [x] add ingress router (nginx | traefik)
 [] add code-server with jupyter-server-proxy
 [] add alicloud | wecom oauth provider
+[] * use Terraform to deploy keycloak
