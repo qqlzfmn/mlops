@@ -1,4 +1,12 @@
 services:
+  jupyterlab:
+    image: jupyter/datascience-notebook:code-server
+    build:
+      context: jupyterlab
+      dockerfile: Dockerfile
+    entrypoint: /bin/true
+    restart: no
+
   jupyterhub:
     image: jupyterhub
     build:
@@ -28,18 +36,27 @@ services:
       timeout: 10s
       retries: 5
     depends_on:
-      - keycloak
+      keycloak:
+        condition: service_healthy
+        restart: true
+      jupyterlab:
+        condition: service_completed_successfully
     deploy:
       replicas: 1
     restart: unless-stopped
 
   keycloak:
-    image: quay.io/keycloak/keycloak
+    image: keycloak/keycloak:healthcheck
+    build:
+      context: keycloak
+      dockerfile: Dockerfile
     command: start-dev
     environment:
       - TZ=Asia/Shanghai
       - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_BOOTSTRAP_ADMIN_USERNAME}
       - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD}
+      - KC_HEALTH_ENABLED=${KC_HEALTH_ENABLED}
+      - KC_METRICS_ENABLED=${KC_METRICS_ENABLED}
       - KC_HTTP_RELATIVE_PATH=${KC_HTTP_RELATIVE_PATH}
     volumes:
       - keycloak:/opt/keycloak/data/h2
@@ -48,12 +65,14 @@ services:
     networks:
       - mlops
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/"]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/sso/health"]
       interval: 30s
       timeout: 10s
       retries: 5
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+        restart: true
     restart: unless-stopped
 
   database:
@@ -86,8 +105,10 @@ services:
     networks:
       - mlops
     depends_on:
-      - jupyterhub
-      - keycloak
+      jupyterhub:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
     restart: always
 
   ## 如果需要使用watchtower自动更新镜像，请取消注释以下内容

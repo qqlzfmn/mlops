@@ -1,4 +1,7 @@
 [x] add ingress router (nginx | traefik)
-[] add code-server with jupyter-server-proxy
-[] add alicloud | wecom oauth provider
+[x] add code-server with jupyter-server-proxy
+[] docker spawner use user on host or user folder in datalake as home dir
+[] docker compose down with spawned containers
+[] keycloak productionalize
+[] add alicloud | wecom | microsoft | github oauth provider
 [] * use Terraform to deploy keycloak

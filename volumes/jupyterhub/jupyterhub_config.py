@@ -831,6 +831,7 @@ notebook_dir = os.environ['JUPYTERHUB_DOCKER_NOTEBOOK_DIR']
 datalake_dir = os.environ['JUPYTERHUB_DOCKER_DATALAKE_DIR']
 
 c.DockerSpawner.allowed_images = [
+    'jupyter/datascience-notebook:code-server',
     'quay.io/jupyter/datascience-notebook:latest',
     'quay.io/jupyter/all-spark-notebook:latest',
     'quay.io/jupyter/scipy-notebook:latest',
