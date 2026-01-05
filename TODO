@@ -1,7 +1,8 @@
 [x] add ingress router (nginx | traefik)
 [x] add code-server with jupyter-server-proxy
+[x] use github oauth provider
+[] drop keycloak authentication (keycloak, nginx, compose)
+[] setup jupyterhub with env variables
+[] split .env file to jupyterhub.env and nginx.env
 [] docker spawner use user on host or user folder in datalake as home dir
 [] docker compose down with spawned containers
-[] keycloak productionalize
-[] add alicloud | wecom | microsoft | github oauth provider
-[] * use Terraform to deploy keycloak

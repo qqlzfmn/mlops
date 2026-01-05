@@ -178,24 +178,27 @@ c = get_config()  #noqa
 #    - pam: jupyterhub.auth.PAMAuthenticator
 #    - shared-password: jupyterhub.authenticators.shared.SharedPasswordAuthenticator
 #  Default: 'jupyterhub.auth.PAMAuthenticator'
-c.JupyterHub.authenticator_class = 'oauthenticator.generic.GenericOAuthenticator'
 
-c.GenericOAuthenticator.authorize_url = os.environ['JUPYTERHUB_OAUTH_AUTHORIZE_URL']
-c.GenericOAuthenticator.oauth_callback_url = os.environ['JUPYTERHUB_OAUTH_CALLBACK_URL']
-c.GenericOAuthenticator.token_url = os.environ['JUPYTERHUB_OAUTH_TOKEN_URL']
-c.GenericOAuthenticator.userdata_url = os.environ['JUPYTERHUB_OAUTH_USERDATA_URL']
-c.GenericOAuthenticator.client_id = os.environ['JUPYTERHUB_OAUTH_CLIENT_ID']
-c.GenericOAuthenticator.client_secret = os.environ['JUPYTERHUB_OAUTH_CLIENT_SECRET']
-c.GenericOAuthenticator.scope = ['openid', 'profile', 'email']
-c.GenericOAuthenticator.username_claim = 'preferred_username'
-c.GenericOAuthenticator.allow_all = False
-c.GenericOAuthenticator.allow_existing_users = False
-c.GenericOAuthenticator.manage_groups = True
-c.GenericOAuthenticator.admin_groups = ['admin']
-c.GenericOAuthenticator.allowed_groups = ['ailab', 'admin']
-c.GenericOAuthenticator.admin_users = ['lzf']
-c.GenericOAuthenticator.allowed_users = ['lzf']
+oauth_callback_url = os.environ['JUPYTERHUB_OAUTH_CALLBACK_URL']
+oauth_client_id = os.environ['JUPYTERHUB_OAUTH_CLIENT_ID']
+oauth_client_secret = os.environ['JUPYTERHUB_OAUTH_CLIENT_SECRET']
+oauth_allowed_users = set(os.environ['JUPYTERHUB_OAUTH_ALLOWED_USERS'].split(','))
+oauth_admin_users = set(os.environ['JUPYTERHUB_OAUTH_ADMIN_USERS'].split(','))
+oauth_allowed_organizations = set(os.environ['JUPYTERHUB_OAUTH_ALLOWED_ORGANIZATIONS'].split(','))
+oauth_scope = list(os.environ['JUPYTERHUB_OAUTH_SCOPE'].split(','))
 
+c.JupyterHub.authenticator_class = "github"
+
+c.OAuthenticator.oauth_callback_url = oauth_callback_url
+c.OAuthenticator.client_id = oauth_client_id
+c.OAuthenticator.client_secret = oauth_client_secret
+
+c.OAuthenticator.allow_existing_users = True
+c.OAuthenticator.allowed_users = oauth_allowed_users
+c.OAuthenticator.admin_users = oauth_admin_users
+
+c.GitHubOAuthenticator.allowed_organizations = oauth_allowed_organizations
+c.GitHubOAuthenticator.scope = oauth_scope
 
 ## The base URL of the entire application.
 #  
