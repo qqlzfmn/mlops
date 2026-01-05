@@ -43,7 +43,7 @@ services:
         condition: service_completed_successfully
     deploy:
       replicas: 1
-    restart: unless-stopped
+    restart: always
 
   keycloak:
     image: keycloak/keycloak:healthcheck
@@ -73,7 +73,7 @@ services:
       database:
         condition: service_healthy
         restart: true
-    restart: unless-stopped
+    restart: always
 
   database:
     image: postgres:alpine
